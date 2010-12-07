@@ -3,7 +3,7 @@ package CVS::Metrics;
 use strict;
 use warnings;
 
-our $VERSION = '0.16';
+our $VERSION = '0.18';
 
 use GD;
 use CVS::Metrics::TaggedChart;
@@ -13,7 +13,7 @@ sub EnergyGD {
     my ($tags, $path, $title, $width, $height, $tag_from, $tag_to) = @_;
 
     my $data = $cvs_log->_Energy($tags, $path);
-    my $img = new CVS::Metrics::TaggedChart($width, $height);
+    my $img = CVS::Metrics::TaggedChart->new($width, $height);
     if (defined $tag_from and defined $tag_to) {
         my @tags2 = @{$tags};
         my @data_pre;
@@ -26,7 +26,7 @@ sub EnergyGD {
         if (scalar @tags_pre) {
             push @tags_pre, $tags2[0];
             push @data_pre, ${$data}[0], ${$data}[1];
-            $img->setData(\@data_pre, 'blue');
+            $img->setData(\@data_pre, 'blue up');
             $img->setTag(\@tags_pre);
         }
         unless ($tag_to eq 'HEAD') {
@@ -45,15 +45,15 @@ sub EnergyGD {
             if (scalar @tags_post) {
                 unshift @tags_post, $tags2[-1];
                 unshift @data_post, ${$data}[-2], ${$data}[-1];
-                $img->setData(\@data_post, 'blue');
+                $img->setData(\@data_post, 'blue up');
                 $img->setTag(\@tags_post);
             }
         }
-        $img->setData($data, 'red');
+        $img->setData($data, 'red up');
         $img->setTag(\@tags2);
     }
     else {
-        $img->setData($data, 'blue');
+        $img->setData($data, 'blue up');
         $img->setTag($tags);
     }
     $img->setGraphOptions(
@@ -72,8 +72,8 @@ sub EnergyCv {
     my ($tags, $path, $title, $width, $height, $toplevel) = @_;
 
     my $data = $cvs_log->_Energy($tags, $path);
-    my $img = new CVS::Metrics::TaggedChart($width, $height);
-    $img->setData($data, 'blue');
+    my $img = CVS::Metrics::TaggedChart->new($width, $height);
+    $img->setData($data, 'blue up');
     $img->setTag($tags);
     $img->setGraphOptions(
             title           => $title,
@@ -134,7 +134,7 @@ sub ActivityGD {
             }
             $i ++;
         }
-        my $graph = new GD::Graph::mixed($width, $height);
+        my $graph = GD::Graph::mixed->new($width, $height);
         $graph->set(
                 '3d'            => 0,
                 x_label         => 'days',
@@ -148,7 +148,7 @@ sub ActivityGD {
         return $graph->plot( [\@days2, \@data1, \@data2] );
     }
     else {
-        my $graph = new GD::Graph::bars($width, $height);
+        my $graph = GD::Graph::bars->new($width, $height);
         $graph->set(
                 '3d'            => 0,
                 x_label         => 'days',
